@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { Link } from "react-router-dom";
-import { LibroWithId } from "../types/libro";
+import { ImageError, LibroWithId } from "../types/libro";
+import noImageAvailable from "../assets/no_image_available.png";
 
 const Books = () => {
   const [books, setBooks] = useState<LibroWithId[]>([]);
   const [dirty, setDirty] = useState<boolean>(false);
+  const [imageErrors, setImageErrors] = useState<ImageError>({});
 
   useEffect(() => {
     const fetchAllBooks = async (): Promise<void> => {
@@ -63,6 +65,10 @@ const Books = () => {
     }
   };
 
+  const handleImgError = (id: number): void => {
+    setImageErrors((prev) => ({ ...prev, [id]: true }));
+  };
+
   return (
     <div>
       <h1>I miei libri</h1>
@@ -78,7 +84,13 @@ const Books = () => {
       <div className="books">
         {books.map((book) => (
           <div className="book" key={book.id}>
-            <img src={book.cover} alt={`Cover ${book.title}`} />
+            <img
+              src={imageErrors[book.id] ? noImageAvailable : book.cover}
+              alt={`Cover ${book.title}`}
+              onError={() => {
+                handleImgError(book.id);
+              }}
+            />
             <h2>{book.title}</h2>
             <p>{book.desc}</p>
             <span>{book.price}$</span>

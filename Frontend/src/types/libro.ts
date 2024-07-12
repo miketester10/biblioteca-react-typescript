@@ -10,6 +10,10 @@ export interface LibroWithId extends Libro {
   id: number;
 }
 
+export interface ImageError {
+  [bookId: number]: boolean;
+}
+
 export type MyParams = {
   bookId: string;
 }
