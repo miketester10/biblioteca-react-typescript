@@ -1,7 +1,7 @@
 .DS_Store
 Thumbs.db
 .vscode
-node_modules
+.node_modules
 password.txt
 sessions
 .env
