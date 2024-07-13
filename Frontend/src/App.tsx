@@ -7,6 +7,7 @@ import Autori from "./components/Autori";
 import AutoreAdd from "./components/AutoreAdd";
 import AutoreUpdate from "./components/AutoreUpdate";
 import Contatti from "./components/Contatti";
+import PaginaNonTrovata from "./components/PaginaNonTrovata";
 import "./style.css";
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
           <Route path="/autoreAdd" element={<AutoreAdd />} />
           <Route path="/autoreUpdate/:authorId" element={<AutoreUpdate />} />
           <Route path="/contatti" element={<Contatti />} />
+          <Route path="*" element={<PaginaNonTrovata />} />
         </Routes>
       </BrowserRouter>
     </div>

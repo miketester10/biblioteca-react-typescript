@@ -77,3 +77,22 @@ input{
     font-weight: bold;
     cursor: pointer;
 }
+
+.btn-404{
+    display: inline-block;
+    padding: 10px 20px;
+    margin-top: 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3); /* Ombreggiatura */
+}
+
+.btn-404:hover {
+    background-color: #0056b3;
+    box-shadow: 0 6px 12px rgba(0, 123, 255, 0.4); /* Ombreggiatura più intensa */
+    transform: translateY(-4px); /* Effetto di sollevamento */
+}
