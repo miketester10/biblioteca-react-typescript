@@ -16,4 +16,15 @@ export interface ImageError {
 
 export type MyParams = {
   bookId: string;
+};
+
+// USANDO SUPABASE COME DB
+export interface LibroSupabase {
+  autoreId: number;
+  cover: string;
+  created_at: string;
+  desc: string;
+  id: number;
+  price: number;
+  title: string;
 }

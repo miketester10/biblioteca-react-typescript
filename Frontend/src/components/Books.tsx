@@ -1,33 +1,47 @@
 import React, { useEffect, useState } from "react";
 import axios, { AxiosResponse } from "axios";
 import { Link } from "react-router-dom";
-import { ImageError, LibroWithId } from "../types/libro";
+import { ImageError, LibroSupabase, LibroWithId } from "../types/libro";
 import noImageAvailable from "../assets/no_image_available.png";
+import { supabase } from "../db/supabase";
 
 const Books = () => {
-  const [books, setBooks] = useState<LibroWithId[]>([]);
+  const [books, setBooks] = useState<LibroSupabase[]>([]);
   const [dirty, setDirty] = useState<boolean>(false);
   const [imageErrors, setImageErrors] = useState<ImageError>({});
 
   useEffect(() => {
-    const fetchAllBooks = async (): Promise<void> => {
-      try {
-        const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
-          "http://localhost:8800/book"
-        );
-        setBooks(resLibri.data);
-        setDirty(false);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
+    const fetchAllBooksFromSupabase = async () => {
+      const { data: books, error } = await supabase.from("libri").select();
+      if (error) {
+        console.log(error);
+        return;
       }
+      setBooks(books);
     };
 
-    fetchAllBooks();
-  }, [dirty]);
+    fetchAllBooksFromSupabase();
+  }, []);
+
+  // useEffect(() => {
+  //   const fetchAllBooks = async (): Promise<void> => {
+  //     try {
+  //       const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
+  //         "http://localhost:8800/book"
+  //       );
+  //       setBooks(resLibri.data);
+  //       setDirty(false);
+  //     } catch (err: unknown) {
+  //       if (axios.isAxiosError(err)) {
+  //         console.log(err.message);
+  //         return;
+  //       }
+  //       console.log(err);
+  //     }
+  //   };
+
+  //   fetchAllBooks();
+  // }, [dirty]);
 
   const handleDelete = async (id: number): Promise<void> => {
     try {
@@ -42,28 +56,28 @@ const Books = () => {
     }
   };
 
-  const handleCerca = async (
-    e: React.KeyboardEvent<HTMLInputElement>
-  ): Promise<void> => {
-    if (e.currentTarget.value === "") {
-      setDirty(true);
-      return;
-    }
-    if (e.key === "Enter") {
-      try {
-        const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
-          `http://localhost:8800/books/search/${e.currentTarget.value}`
-        );
-        setBooks(resLibri.data);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
-      }
-    }
-  };
+  // const handleCerca = async (
+  //   e: React.KeyboardEvent<HTMLInputElement>
+  // ): Promise<void> => {
+  //   if (e.currentTarget.value === "") {
+  //     setDirty(true);
+  //     return;
+  //   }
+  //   if (e.key === "Enter") {
+  //     try {
+  //       const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
+  //         `http://localhost:8800/books/search/${e.currentTarget.value}`
+  //       );
+  //       setBooks(resLibri.data);
+  //     } catch (err: unknown) {
+  //       if (axios.isAxiosError(err)) {
+  //         console.log(err.message);
+  //         return;
+  //       }
+  //       console.log(err);
+  //     }
+  //   }
+  // };
 
   const handleImgError = (id: number): void => {
     setImageErrors((prev) => ({ ...prev, [id]: true }));
@@ -79,7 +93,7 @@ const Books = () => {
       <h3>
         {" "}
         Cerca per titolo o per autore:{" "}
-        <input type="text" name="cerca" id="cerca" onKeyUp={handleCerca} />
+        {/* <input type="text" name="cerca" id="cerca" onKeyUp={handleCerca} /> */}
       </h3>
       <div className="books">
         {books.map((book) => (
