@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
-import {Libro } from "../types/libro";
-import { AutoreWithId } from "../types/autore";
+import { Libro } from "../types/libro";
+import { AutoreSupabase } from "../types/autore";
+import { supabase } from "../db/supabase";
 
 const Add = () => {
   const [book, setBook] = useState<Libro>({
@@ -13,24 +13,19 @@ const Add = () => {
     id_autore: -1,
   });
 
-  const [autori, setAutori] = useState<AutoreWithId[]>([]);
+  const [autori, setAutori] = useState<AutoreSupabase[]>([]);
 
   useEffect(() => {
     const fetchAllAutori = async (): Promise<void> => {
-      try {
-        const resAutori: AxiosResponse<AutoreWithId[]> = await axios.get(
-          "http://localhost:8800/author"
-        );
-        setAutori(resAutori.data);
-        setBook((prev) => ({ ...prev, id_autore: resAutori.data[0].id }));
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
+      const { data: autori, error } = await supabase.from("autori").select();
+      if (error) {
+        console.log(error);
+        return;
       }
+      setAutori(autori);
+      setBook((prev) => ({ ...prev, id_autore: autori[0].id }));
     };
+
     fetchAllAutori();
   }, []);
 
@@ -55,17 +50,14 @@ const Add = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     e.preventDefault();
-    try {
-      await axios.post("http://localhost:8800/book", book);
-      navigate("/");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
+    const { error } = await supabase.from("libri").insert(book);
+    if (error) {
+      console.log(error);
+      return;
     }
+    navigate("/");
   };
+
   return (
     <div className="form">
       <input

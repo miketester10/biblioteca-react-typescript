@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Autore } from "../types/autore";
+import { supabase } from "../db/supabase";
 
 const AutoreAdd = () => {
   const [autore, setAutore] = useState<Autore>({
@@ -20,16 +20,12 @@ const AutoreAdd = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     e.preventDefault();
-    try {
-      await axios.post("http://localhost:8800/author", autore);
-      navigate("/autori");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
+    const { error } = await supabase.from("autori").insert(autore);
+    if (error) {
+      console.log(error);
+      return;
     }
+    navigate("/autori");
   };
 
   return (

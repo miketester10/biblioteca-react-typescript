@@ -72,15 +72,15 @@ export type Database = {
     Views: {
       libri_autori_view: {
         Row: {
-          cognome: string
-          cover: string
-          created_at: string
-          desc: string
-          id: number
-          id_autore: number
-          nome: string
-          price: number
-          title: string
+          cognome: string | null
+          cover: string | null
+          created_at: string | null
+          desc: string | null
+          id: number | null
+          id_autore: number | null
+          nome: string | null
+          price: number | null
+          title: string | null
         }
         Relationships: [
           {

@@ -10,3 +10,11 @@ export interface AutoreWithId extends Autore {
 export type MyParams = {
   authorId: string;
 }
+
+// USANDO SUPABASE COME DB
+export interface AutoreSupabase {
+  id: number;
+  nome: string;
+  cognome: string;
+  created_at: string;
+}

@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ImageError, LibroSupabase } from "../types/libro";
 import noImageAvailable from "../assets/no_image_available.png";
 import { supabase } from "../db/supabase";
+import { PostgrestError } from "@supabase/supabase-js";
 
 const Books = () => {
   const [books, setBooks] = useState<LibroSupabase[]>([]);
@@ -43,7 +44,7 @@ const Books = () => {
         .select("id,title,desc,price,cover,id_autore,created_at")
         .or(
           `title.ilike.%${ricerca}%,nome.ilike.%${ricerca}%,cognome.ilike.%${ricerca}%`
-        );
+        ) as {data: LibroSupabase[], error: PostgrestError | null};
 
       if (error) {
         console.log(error);

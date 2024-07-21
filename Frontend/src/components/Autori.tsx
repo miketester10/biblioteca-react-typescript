@@ -1,46 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import axios, { AxiosResponse } from "axios";
-import { AutoreWithId } from "../types/autore";
+import { Link } from "react-router-dom";
+import { AutoreSupabase } from "../types/autore";
+import { supabase } from "../db/supabase";
 
 const Autori = () => {
-  const [listaAutori, setListaAutori] = useState<AutoreWithId[]>([]);
+  const [listaAutori, setListaAutori] = useState<AutoreSupabase[]>([]);
   const [dirty, setDirty] = useState<boolean>(false);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllAutori = async (): Promise<void> => {
-      try {
-        const resAutori: AxiosResponse<AutoreWithId[]> = await axios.get(
-          "http://localhost:8800/author"
-        );
-        setListaAutori(resAutori.data);
-        setDirty(false);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
+      const { data: autori, error } = await supabase.from("autori").select();
+      if (error) {
+        console.log(error);
+        return;
       }
+      setListaAutori(autori);
+      setDirty(false);
     };
 
     fetchAllAutori();
   }, [dirty]);
 
   const handleDelete = async (id: number): Promise<void> => {
-    try {
-      await axios.delete(`http://localhost:8800/author/${id}`);
-      setDirty(true);
-      navigate("/autori");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
-    }
+    const { error } = await supabase.from("autori").delete().eq("id", id);
+    setDirty(true);
+    if (error) console.log(error);
   };
 
   return (
