@@ -12,7 +12,7 @@ const Books = () => {
 
   useEffect(() => {
     const fetchAllBooks = async (): Promise<void> => {
-      const { data: books, error } = await supabase.from("libri").select();
+      const { data: books, error } = await supabase.from("libri").select().order("id", { ascending: true });
       if (error) {
         console.log(error);
         return;

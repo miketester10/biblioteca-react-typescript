@@ -1,43 +1,50 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { Libro, MyParams } from "../types/libro";
-import { AutoreWithId } from "../types/autore";
+import { LibroSupabase, MyParams } from "../types/libro";
+import { AutoreSupabase } from "../types/autore";
+import { supabase } from "../db/supabase";
 
 const Update = () => {
-  const [editField, setEditField] = useState<Libro>({
+  const [editField, setEditField] = useState<LibroSupabase>({
+    id: -1,
     title: "",
     desc: "",
     price: -1,
     cover: "",
     id_autore: -1,
+    created_at: "",
   });
-  const [autori, setAutori] = useState<AutoreWithId[]>([]);
+  const [autori, setAutori] = useState<AutoreSupabase[]>([]);
 
   const navigate = useNavigate();
   // const { bookId } = useParams<MyParams>(); forma abbreviata (destrutturazione)
   const params = useParams<MyParams>();
-  const bookId = params.bookId
+  const bookId = params.bookId as string;
 
   useEffect(() => {
     const fetchBook = async (): Promise<void> => {
-      try {
-        const [resLibri, resAutori]: [
-          AxiosResponse<Libro[]>,
-          AxiosResponse<AutoreWithId[]>
-        ] = await Promise.all([
-          axios.get(`http://localhost:8800/book/${bookId}`),
-          axios.get(`http://localhost:8800/author`),
-        ]);
-        setEditField(resLibri.data[0]);
-        setAutori(resAutori.data);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
+      // Ottengo i dati del libro
+      const { data: book, error: errorQuery1 } = await supabase
+        .from("libri")
+        .select()
+        .eq("id", bookId);
+      if (errorQuery1) {
+        console.log(errorQuery1);
+        return;
       }
+
+      // Ottengo i dati degli autori
+      const { data: autori, error: errorQuery2 } = await supabase
+        .from("autori")
+        .select();
+      if (errorQuery2) {
+        console.log(errorQuery2);
+        return;
+      }
+
+      // Imposto gli stati
+      setEditField(book[0]);
+      setAutori(autori);
     };
     fetchBook();
   }, [bookId]);
@@ -61,17 +68,18 @@ const Update = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     e.preventDefault();
-    try {
-      await axios.put(`http://localhost:8800/book/${bookId}`, editField);
-      navigate("/");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
+
+    const { error } = await supabase
+      .from("libri")
+      .update(editField)
+      .eq("id", bookId);
+    if (error) {
+      console.log(error);
+      return;
     }
+    navigate("/");
   };
+
   return (
     <div className="form">
       <h1>Aggiorna le informazioni sul libro</h1>

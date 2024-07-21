@@ -9,7 +9,7 @@ const Autori = () => {
 
   useEffect(() => {
     const fetchAllAutori = async (): Promise<void> => {
-      const { data: autori, error } = await supabase.from("autori").select();
+      const { data: autori, error } = await supabase.from("autori").select().order("id", { ascending: true });
       if (error) {
         console.log(error);
         return;

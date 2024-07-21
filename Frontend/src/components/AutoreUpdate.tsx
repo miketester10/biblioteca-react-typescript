@@ -1,33 +1,35 @@
 import React, { useState, useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { Autore, MyParams } from "../types/autore";
+import { AutoreSupabase, MyParams } from "../types/autore";
+import { supabase } from "../db/supabase";
 
 const AutoreUpdate = () => {
-  const [editField, setEditField] = useState<Autore>({
+  const [editField, setEditField] = useState<AutoreSupabase>({
+    id: -1,
     nome: "",
     cognome: "",
+    created_at: "",
   });
 
   const navigate = useNavigate();
   // const { authorId } = useParams<MyParams>(); forma abbreviata (destrutturazione)
   const params = useParams<MyParams>();
-  const authorId = params.authorId;
+  const authorId = params.authorId as string;
 
   useEffect(() => {
     const fetchAuthor = async (): Promise<void> => {
-      try {
-        const resAutori: AxiosResponse<Autore[]> = await axios.get(
-          `http://localhost:8800/author/${authorId}`
-        );
-        setEditField(resAutori.data[0]);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          console.log(err.message);
-          return;
-        }
-        console.log(err);
+      // Ottengo i dati dell'autore
+      const { data: autore, error } = await supabase
+        .from("autori")
+        .select()
+        .eq("id", authorId);
+      if (error) {
+        console.log(error);
+        return;
       }
+
+      // Imposto lo stato
+      setEditField(autore[0]);
     };
     fetchAuthor();
   }, [authorId]);
@@ -41,16 +43,15 @@ const AutoreUpdate = () => {
     e: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> => {
     e.preventDefault();
-    try {
-      await axios.put(`http://localhost:8800/author/${authorId}`, editField);
-      navigate("/autori");
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
+    const { error } = await supabase
+      .from("autori")
+      .update(editField)
+      .eq("id", authorId);
+    if (error) {
+      console.log(error);
+      return;
     }
+    navigate("/autori");
   };
   return (
     <div className="form">
