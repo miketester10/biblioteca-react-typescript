@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios, { AxiosResponse } from "axios";
 import { Link } from "react-router-dom";
-import { ImageError, LibroSupabase, LibroWithId } from "../types/libro";
+import { ImageError, LibroSupabase } from "../types/libro";
 import noImageAvailable from "../assets/no_image_available.png";
 import { supabase } from "../db/supabase";
 
@@ -11,73 +10,48 @@ const Books = () => {
   const [imageErrors, setImageErrors] = useState<ImageError>({});
 
   useEffect(() => {
-    const fetchAllBooksFromSupabase = async () => {
+    const fetchAllBooks = async (): Promise<void> => {
       const { data: books, error } = await supabase.from("libri").select();
       if (error) {
         console.log(error);
         return;
       }
       setBooks(books);
+      setDirty(false);
     };
 
-    fetchAllBooksFromSupabase();
-  }, []);
-
-  // useEffect(() => {
-  //   const fetchAllBooks = async (): Promise<void> => {
-  //     try {
-  //       const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
-  //         "http://localhost:8800/book"
-  //       );
-  //       setBooks(resLibri.data);
-  //       setDirty(false);
-  //     } catch (err: unknown) {
-  //       if (axios.isAxiosError(err)) {
-  //         console.log(err.message);
-  //         return;
-  //       }
-  //       console.log(err);
-  //     }
-  //   };
-
-  //   fetchAllBooks();
-  // }, [dirty]);
+    fetchAllBooks();
+  }, [dirty]);
 
   const handleDelete = async (id: number): Promise<void> => {
-    try {
-      await axios.delete(`http://localhost:8800/book/${id}`);
-      setDirty(true);
-    } catch (err: unknown) {
-      if (axios.isAxiosError(err)) {
-        console.log(err.message);
-        return;
-      }
-      console.log(err);
-    }
+    const { error } = await supabase.from("libri").delete().eq("id", id);
+    setDirty(true);
+    if (error) console.log(error);
   };
 
-  // const handleCerca = async (
-  //   e: React.KeyboardEvent<HTMLInputElement>
-  // ): Promise<void> => {
-  //   if (e.currentTarget.value === "") {
-  //     setDirty(true);
-  //     return;
-  //   }
-  //   if (e.key === "Enter") {
-  //     try {
-  //       const resLibri: AxiosResponse<LibroWithId[]> = await axios.get(
-  //         `http://localhost:8800/books/search/${e.currentTarget.value}`
-  //       );
-  //       setBooks(resLibri.data);
-  //     } catch (err: unknown) {
-  //       if (axios.isAxiosError(err)) {
-  //         console.log(err.message);
-  //         return;
-  //       }
-  //       console.log(err);
-  //     }
-  //   }
-  // };
+  const handleCerca = async (
+    e: React.KeyboardEvent<HTMLInputElement>
+  ): Promise<void> => {
+    const ricerca = e.currentTarget.value;
+    if (ricerca === "") {
+      setDirty(true);
+      return;
+    }
+    if (e.key === "Enter") {
+      const { data: books, error } = await supabase
+        .from("libri_autori_view")
+        .select("id,title,desc,price,cover,id_autore,created_at")
+        .or(
+          `title.ilike.%${ricerca}%,nome.ilike.%${ricerca}%,cognome.ilike.%${ricerca}%`
+        );
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+      setBooks(books);
+    }
+  };
 
   const handleImgError = (id: number): void => {
     setImageErrors((prev) => ({ ...prev, [id]: true }));
@@ -93,7 +67,7 @@ const Books = () => {
       <h3>
         {" "}
         Cerca per titolo o per autore:{" "}
-        {/* <input type="text" name="cerca" id="cerca" onKeyUp={handleCerca} /> */}
+        <input type="text" name="cerca" id="cerca" onKeyUp={handleCerca} />
       </h3>
       <div className="books">
         {books.map((book) => (

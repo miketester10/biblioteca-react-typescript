@@ -32,36 +32,36 @@ export type Database = {
       }
       libri: {
         Row: {
-          autoreId: number
           cover: string
           created_at: string
           desc: string
           id: number
+          id_autore: number
           price: number
           title: string
         }
         Insert: {
-          autoreId: number
           cover: string
           created_at?: string
           desc: string
           id?: number
+          id_autore: number
           price: number
           title: string
         }
         Update: {
-          autoreId?: number
           cover?: string
           created_at?: string
           desc?: string
           id?: number
+          id_autore?: number
           price?: number
           title?: string
         }
         Relationships: [
           {
             foreignKeyName: "libri_autoreId_fkey"
-            columns: ["autoreId"]
+            columns: ["id_autore"]
             isOneToOne: false
             referencedRelation: "autori"
             referencedColumns: ["id"]
@@ -70,7 +70,28 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      libri_autori_view: {
+        Row: {
+          cognome: string
+          cover: string
+          created_at: string
+          desc: string
+          id: number
+          id_autore: number
+          nome: string
+          price: number
+          title: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "libri_autoreId_fkey"
+            columns: ["id_autore"]
+            isOneToOne: false
+            referencedRelation: "autori"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       [_ in never]: never

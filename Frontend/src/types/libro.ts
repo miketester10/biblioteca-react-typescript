@@ -20,11 +20,11 @@ export type MyParams = {
 
 // USANDO SUPABASE COME DB
 export interface LibroSupabase {
-  autoreId: number;
-  cover: string;
-  created_at: string;
-  desc: string;
   id: number;
-  price: number;
   title: string;
+  desc: string;
+  price: number;
+  cover: string;
+  id_autore: number;
+  created_at: string;
 }
