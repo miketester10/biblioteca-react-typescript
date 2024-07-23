@@ -5,13 +5,7 @@ import { AutoreSupabase } from "../types/autore";
 import { supabase } from "../db/supabase";
 
 const Add = () => {
-  const [book, setBook] = useState<Libro>({
-    title: "",
-    desc: "",
-    price: -1,
-    cover: "",
-    id_autore: -1,
-  });
+  const [book, setBook] = useState<Libro>({} as Libro);
 
   const [autori, setAutori] = useState<AutoreSupabase[]>([]);
 

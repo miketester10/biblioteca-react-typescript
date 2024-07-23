@@ -12,7 +12,10 @@ const Books = () => {
 
   useEffect(() => {
     const fetchAllBooks = async (): Promise<void> => {
-      const { data: books, error } = await supabase.from("libri").select().order("id", { ascending: true });
+      const { data: books, error } = await supabase
+        .from("libri")
+        .select()
+        .order("id", { ascending: true });
       if (error) {
         console.log(error);
         return;
@@ -39,12 +42,12 @@ const Books = () => {
       return;
     }
     if (e.key === "Enter") {
-      const { data: books, error } = await supabase
+      const { data: books, error } = (await supabase
         .from("libri_autori_view")
         .select("id,title,desc,price,cover,id_autore,created_at")
         .or(
           `title.ilike.%${ricerca}%,nome.ilike.%${ricerca}%,cognome.ilike.%${ricerca}%`
-        ) as {data: LibroSupabase[], error: PostgrestError | null};
+        )) as { data: LibroSupabase[]; error: PostgrestError | null };
 
       if (error) {
         console.log(error);

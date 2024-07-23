@@ -4,15 +4,9 @@ import { AutoreSupabase, MyParams } from "../types/autore";
 import { supabase } from "../db/supabase";
 
 const AutoreUpdate = () => {
-  const [editField, setEditField] = useState<AutoreSupabase>({
-    id: -1,
-    nome: "",
-    cognome: "",
-    created_at: "",
-  });
+  const [editField, setEditField] = useState<AutoreSupabase>({} as AutoreSupabase);
 
   const navigate = useNavigate();
-  // const { authorId } = useParams<MyParams>(); forma abbreviata (destrutturazione)
   const params = useParams<MyParams>();
   const authorId = params.authorId as string;
 

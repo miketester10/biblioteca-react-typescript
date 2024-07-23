@@ -60,10 +60,42 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "libri_autoreId_fkey"
+            foreignKeyName: "libri_id_autore_fkey"
             columns: ["id_autore"]
             isOneToOne: false
             referencedRelation: "autori"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      utenti: {
+        Row: {
+          cognome: string
+          created_at: string
+          email: string
+          id: string
+          nome: string
+        }
+        Insert: {
+          cognome: string
+          created_at?: string
+          email: string
+          id?: string
+          nome: string
+        }
+        Update: {
+          cognome?: string
+          created_at?: string
+          email?: string
+          id?: string
+          nome?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utenti_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "users"
             referencedColumns: ["id"]
           },
         ]
@@ -84,7 +116,7 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "libri_autoreId_fkey"
+            foreignKeyName: "libri_id_autore_fkey"
             columns: ["id_autore"]
             isOneToOne: false
             referencedRelation: "autori"
