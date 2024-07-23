@@ -8,7 +8,7 @@ const Login = () => {
   const { setUser, setIsLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const email = "marcotfari10@gmail.com";
+  const email = "marcotfari@gmail.com";
   const password = "000000";
   const nome = "Marco";
   const cognome = "Fari";
@@ -27,7 +27,7 @@ const Login = () => {
       alert(errorQuery1);
       return;
     }
-    const userUUID = user?.id;
+    const userUUID = user?.id as string;
     const { error: errorQuery2 } = await supabase
       .from("utenti")
       .insert({ id: userUUID, nome, cognome, email });
@@ -37,6 +37,9 @@ const Login = () => {
     }
 
     alert("Utente creato e già loggato in automatico");
+    setUser({ id: userUUID, nome, cognome, email });
+    setIsLoggedIn(true);
+    navigate("/");
   };
 
   const handleResetPassword = async (
