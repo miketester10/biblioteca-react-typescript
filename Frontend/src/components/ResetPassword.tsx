@@ -27,6 +27,6 @@ const ResetPassword = () => {
     navigate("/");
   };
 
-  return <button onClick={handleResetta}>Resetta</button>;
+  return <div style={{paddingTop: "20px"}}><button onClick={handleResetta}>Resetta</button></div>;
 };
 export default ResetPassword;

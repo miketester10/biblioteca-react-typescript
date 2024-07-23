@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ImageError, LibroSupabase } from "../types/libro";
 import noImageAvailable from "../assets/no_image_available.png";
 import { supabase } from "../db/supabase";
 import { PostgrestError } from "@supabase/supabase-js";
+import AuthContext from "../context/AuthContext";
 
 const Books = () => {
   const [books, setBooks] = useState<LibroSupabase[]>([]);
   const [dirty, setDirty] = useState<boolean>(false);
   const [imageErrors, setImageErrors] = useState<ImageError>({});
+  const { isLoggedIn } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchAllBooks = async (): Promise<void> => {
@@ -86,18 +88,27 @@ const Books = () => {
             <h2>{book.title}</h2>
             <p>{book.desc}</p>
             <span>{book.price}$</span>
-            <button className="delete" onClick={() => handleDelete(book.id)}>
-              Delete
-            </button>
-            <button className="update">
-              <Link to={`/update/${book.id}`}>Update</Link>
-            </button>
+            {isLoggedIn && (
+              <>
+                <button
+                  className="delete"
+                  onClick={() => handleDelete(book.id)}
+                >
+                  Delete
+                </button>
+                <button className="update">
+                  <Link to={`/update/${book.id}`}>Update</Link>
+                </button>
+              </>
+            )}
           </div>
         ))}
 
-        <button>
-          <Link to="/add">Add new book</Link>
-        </button>
+        {isLoggedIn && (
+          <button>
+            <Link to="/add">Add new book</Link>
+          </button>
+        )}
       </div>
     </div>
   );

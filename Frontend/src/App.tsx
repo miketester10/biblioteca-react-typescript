@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { supabase } from "./db/supabase";
 import { User } from "./types/user";
+import AuthContext from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
 import Books from "./components/Books";
@@ -15,22 +16,23 @@ import Login from "./components/Login";
 import ResetPassword from "./components/ResetPassword";
 import PaginaNonTrovata from "./components/PaginaNonTrovata";
 import "./style.css";
-import AuthContext from "./context/AuthContext";
 
 function App() {
   const [user, setUser] = useState<User>({} as User);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
 
+  const location = useLocation();
+  const hideNavbarPaths = ["/login", "/reset-password"];
+
   useEffect(() => {
-    const getSession = async () => {
-      const {
-        data: { session },
-        error: errorQuery1,
-      } = await supabase.auth.getSession();
-      if (errorQuery1) {
-        alert(errorQuery1.message);
+    const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log(event);
+
+      if (event === "PASSWORD_RECOVERY") {
+        setIsLoggedIn(false);
         return;
       }
+
       const userUUID = session?.user.id as string;
 
       if (!userUUID) {
@@ -49,16 +51,17 @@ function App() {
 
       setUser(userFromDB[0]);
       setIsLoggedIn(true);
-    };
+    });
 
-    getSession();
+    return () => {
+      data.subscription.unsubscribe();
+    };
   }, []);
 
   return (
     <AuthContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
       <div className="App">
-        <BrowserRouter>
-          <Navbar />
+        {hideNavbarPaths.includes(location.pathname) ? null : <Navbar />}
           <Routes>
             <Route path="/" element={<Books />} />
             <Route path="/add" element={<Add />} />
@@ -71,7 +74,6 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={<PaginaNonTrovata />} />
           </Routes>
-        </BrowserRouter>
       </div>
     </AuthContext.Provider>
   );

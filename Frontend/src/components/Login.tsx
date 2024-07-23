@@ -10,8 +10,8 @@ const Login = () => {
 
   const email = "marcotfari@gmail.com";
   const password = "000000";
-  const nome = "Marco";
-  const cognome = "Fari";
+  const nome = "Luca";
+  const cognome = "Verdi";
 
   const handleRegistrati = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -24,7 +24,7 @@ const Login = () => {
       password,
     });
     if (errorQuery1) {
-      alert(errorQuery1);
+      alert(errorQuery1.message);
       return;
     }
     const userUUID = user?.id as string;
@@ -32,7 +32,7 @@ const Login = () => {
       .from("utenti")
       .insert({ id: userUUID, nome, cognome, email });
     if (errorQuery2) {
-      alert(errorQuery2);
+      alert(errorQuery2.message);
       return;
     }
 
@@ -108,7 +108,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div style={{paddingTop: "20px"}}>
       <button onClick={handleLogin}>Login</button>
       <button onClick={handleLogout}>Logout</button>
       <button onClick={handleRegistrati}>Registrati</button>

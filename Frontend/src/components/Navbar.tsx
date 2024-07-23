@@ -11,8 +11,7 @@ const Navbar = () => {
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "flex-start",
-        height: "100vh",
-        paddingTop: "20px", // Puoi aggiungere un padding superiore se necessario
+        paddingTop: "20px"
       }}
     >
       {isLoggedIn ? (

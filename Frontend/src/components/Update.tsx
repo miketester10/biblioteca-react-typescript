@@ -5,15 +5,7 @@ import { AutoreSupabase } from "../types/autore";
 import { supabase } from "../db/supabase";
 
 const Update = () => {
-  const [editField, setEditField] = useState<LibroSupabase>({
-    id: -1,
-    title: "",
-    desc: "",
-    price: -1,
-    cover: "",
-    id_autore: -1,
-    created_at: "",
-  });
+  const [editField, setEditField] = useState<LibroSupabase>({} as LibroSupabase);
   const [autori, setAutori] = useState<AutoreSupabase[]>([]);
 
   const navigate = useNavigate();
