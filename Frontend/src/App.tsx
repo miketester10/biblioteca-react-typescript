@@ -20,37 +20,42 @@ import "./style.css";
 function App() {
   const [user, setUser] = useState<User>({} as User);
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const location = useLocation();
   const hideNavbarPaths = ["/login", "/reset-password"];
 
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(event);
+      console.log(`EVENT => ${event}`);
 
-      if (event === "PASSWORD_RECOVERY") {
+      if (event === "INITIAL_SESSION" || event === "SIGNED_IN") {
+        const userUUID = session?.user.id as string;
+        if (!userUUID) {
+          setLoading(false);
+          console.warn("User non autenticato");
+          return;
+        }
+
+        const { data: userFromDB, error } = await supabase
+          .from("utenti")
+          .select()
+          .eq("id", userUUID);
+        if (error) {
+          console.log(error.message);
+          return;
+        }
+
+        if (userFromDB.length > 0) {
+          setUser(userFromDB[0]);
+          setIsLoggedIn(true);
+          setLoading(false);
+        }
+        
+      } else if (event === "SIGNED_OUT") {
+        setUser({} as User);
         setIsLoggedIn(false);
-        return;
       }
-
-      const userUUID = session?.user.id as string;
-
-      if (!userUUID) {
-        console.warn("User non autenticato");
-        return;
-      }
-
-      const { data: userFromDB, error: errorQuery2 } = await supabase
-        .from("utenti")
-        .select()
-        .eq("id", userUUID);
-      if (errorQuery2) {
-        console.log(errorQuery2.message);
-        return;
-      }
-
-      setUser(userFromDB[0]);
-      setIsLoggedIn(true);
     });
 
     return () => {
@@ -61,19 +66,23 @@ function App() {
   return (
     <AuthContext.Provider value={{ user, setUser, isLoggedIn, setIsLoggedIn }}>
       <div className="App">
-        {hideNavbarPaths.includes(location.pathname) ? null : <Navbar />}
-          <Routes>
-            <Route path="/" element={<Books />} />
-            <Route path="/add" element={<Add />} />
-            <Route path="/update/:bookId" element={<Update />} />
-            <Route path="/autori" element={<Autori />} />
-            <Route path="/autoreAdd" element={<AutoreAdd />} />
-            <Route path="/autoreUpdate/:authorId" element={<AutoreUpdate />} />
-            <Route path="/contatti" element={<Contatti />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="*" element={<PaginaNonTrovata />} />
-          </Routes>
+        {hideNavbarPaths.includes(location.pathname) ? null : loading ? (
+          <p>Loading...</p>
+        ) : (
+          <Navbar />
+        )}
+        <Routes>
+          <Route path="/" element={<Books />} />
+          <Route path="/add" element={<Add />} />
+          <Route path="/update/:bookId" element={<Update />} />
+          <Route path="/autori" element={<Autori />} />
+          <Route path="/autoreAdd" element={<AutoreAdd />} />
+          <Route path="/autoreUpdate/:authorId" element={<AutoreUpdate />} />
+          <Route path="/contatti" element={<Contatti />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="*" element={<PaginaNonTrovata />} />
+        </Routes>
       </div>
     </AuthContext.Provider>
   );

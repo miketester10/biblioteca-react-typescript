@@ -1,96 +1,65 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { supabase } from "../db/supabase";
-import { useNavigate } from "react-router-dom";
-import { User } from "../types/user";
+import { Link, useNavigate } from "react-router-dom";
 import AuthContext from "../context/AuthContext";
 
 const Login = () => {
-  const { setUser, setIsLoggedIn } = useContext(AuthContext);
+  const [success, setSuccess] = useState<boolean>(false);
   const navigate = useNavigate();
+  const { isLoggedIn } = useContext(AuthContext);
 
   const email = "marcotfari@gmail.com";
   const password = "000000";
-  const nome = "Luca";
-  const cognome = "Verdi";
+  const nome = "Marco";
+  const cognome = "Fari";
 
   const handleRegistrati = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log("registrati");
-    const {
-      data: { user },
-      error: errorQuery1,
-    } = await supabase.auth.signUp({
+
+    const { error } = await supabase.auth.signUp({
       email,
       password,
+      options: { data: { nome, cognome } },
     });
-    if (errorQuery1) {
-      alert(errorQuery1.message);
-      return;
-    }
-    const userUUID = user?.id as string;
-    const { error: errorQuery2 } = await supabase
-      .from("utenti")
-      .insert({ id: userUUID, nome, cognome, email });
-    if (errorQuery2) {
-      alert(errorQuery2.message);
-      return;
-    }
 
-    alert("Utente creato e già loggato in automatico");
-    setUser({ id: userUUID, nome, cognome, email });
-    setIsLoggedIn(true);
-    navigate("/");
+    if (error) {
+      alert(error.message);
+      return;
+    } else {
+      setSuccess(true);
+      setTimeout(() => {
+        navigate("/");
+        setSuccess(false);
+      }, 4000);
+    }
   };
 
   const handleResetPassword = async (
     e: React.MouseEvent<HTMLButtonElement>
   ) => {
     e.preventDefault();
+
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "http://localhost:3000/reset-password",
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) {
       alert(error.message);
-      return;
+    } else {
+      alert("Ti abbiamo inviato un'email per resettare la password.");
     }
-    alert("Ti abbiamo inviato un'email per resettare la password");
   };
 
   const handleLogin = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    const {
-      data: { user, session },
-      error,
-    } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) {
-      alert(error.message);
-      return;
+      alert('Email o password errati.');
+    } else {
+      navigate("/");
     }
-    console.log("login");
-
-    const userUUID = user?.id as string;
-
-    if (!userUUID) {
-      console.warn("User non autenticato");
-      return;
-    }
-
-    const { data: userFromDB, error: errorQuery2 } = await supabase
-      .from("utenti")
-      .select()
-      .eq("id", userUUID);
-    if (errorQuery2) {
-      console.log(errorQuery2.message);
-      return;
-    }
-
-    setUser(userFromDB[0]);
-    setIsLoggedIn(true);
-
-    navigate("/");
   };
 
   const handleLogout = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -98,21 +67,33 @@ const Login = () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
       alert(error.message);
-      return;
+    } else {
+      navigate("/");
     }
-    console.log("logout");
-    setUser({} as User);
-    setIsLoggedIn(false);
-
-    navigate("/");
   };
 
   return (
-    <div style={{paddingTop: "20px"}}>
-      <button onClick={handleLogin}>Login</button>
-      <button onClick={handleLogout}>Logout</button>
-      <button onClick={handleRegistrati}>Registrati</button>
-      <button onClick={handleResetPassword}>Reset Password</button>
+    <div style={{ paddingTop: "20px" }}>
+      {!success ? (
+      !isLoggedIn ? (
+        <>
+          <button onClick={handleLogin}>Login</button>
+
+          <button onClick={handleRegistrati}>Registrati</button>
+
+          <button onClick={handleResetPassword}>Reset Password</button>
+        </>
+      ) : (
+        <button onClick={handleLogout}>Logout</button>
+      )
+    ) : (
+      <h4>
+        Registrazione avvenuta con successo. Verrai reindirizzato alla homepage tra
+        pochi secondi..
+        <br />
+        Oppure <Link to="/">clicca qui</Link>
+      </h4>
+    )}
     </div>
   );
 };
