@@ -56,7 +56,7 @@ const Login = () => {
       password,
     });
     if (error) {
-      alert('Email o password errati.');
+      alert("Email o password errati.");
     } else {
       navigate("/");
     }
@@ -75,25 +75,25 @@ const Login = () => {
   return (
     <div style={{ paddingTop: "20px" }}>
       {!success ? (
-      !isLoggedIn ? (
-        <>
-          <button onClick={handleLogin}>Login</button>
+        !isLoggedIn ? (
+          <>
+            <button onClick={handleLogin}>Login</button>
 
-          <button onClick={handleRegistrati}>Registrati</button>
+            <button onClick={handleRegistrati}>Registrati</button>
 
-          <button onClick={handleResetPassword}>Reset Password</button>
-        </>
+            <button onClick={handleResetPassword}>Reset Password</button>
+          </>
+        ) : (
+          <button onClick={handleLogout}>Logout</button>
+        )
       ) : (
-        <button onClick={handleLogout}>Logout</button>
-      )
-    ) : (
-      <h4>
-        Registrazione avvenuta con successo. Verrai reindirizzato alla homepage tra
-        pochi secondi..
-        <br />
-        Oppure <Link to="/">clicca qui</Link>
-      </h4>
-    )}
+        <h4>
+          Ti abbiamo inviato un'email per confermare la registrazione. Verrai
+          reindirizzato alla homepage tra pochi secondi..
+          <br />
+          Oppure <Link to="/">clicca qui</Link>
+        </h4>
+      )}
     </div>
   );
 };
