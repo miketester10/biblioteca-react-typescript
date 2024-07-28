@@ -4,10 +4,7 @@ import { Autore } from "../types/autore";
 import { supabase } from "../db/supabase";
 
 const AutoreAdd = () => {
-  const [autore, setAutore] = useState<Autore>({
-    nome: "",
-    cognome: "",
-  });
+  const [autore, setAutore] = useState<Autore>({} as Autore);
 
   const navigate = useNavigate();
 
